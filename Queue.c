@@ -1,102 +1,99 @@
-// C program for array implementation of queue
-#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#define total_capacity 100 //quantidade máxima de itens no stack
+typedef struct node{
+    int value;
+    struct node *next;
+}Node;
 
-// Estrutura da fila
-struct Queue {
-    int front, rear, size;
-    unsigned capacity;
-    int* array;
-};
+typedef struct {
+    Node *first;
+    Node *end;
+    int size;
+}Queue;
 
-// Função para criar uma fila, recebe a capacidade no argumento
-// Inicializa como 0
-struct Queue* createQueue(unsigned capacity)
-{
-    struct Queue* queue = (struct Queue*)malloc(
-        sizeof(struct Queue));
-    queue->capacity = capacity;
-    queue->front = queue->size = 0;
-
-    //importante
-    queue->rear = capacity - 1;
-    queue->array = (int*)malloc(
-        queue->capacity * sizeof(int));
-    return queue;
+void createQueue(Queue *queue){
+    queue->first = NULL;
+    queue->end = NULL;
+    queue->size = 0;
 }
 
-// Fila cheia
-int isFull(struct Queue* queue)
-{
-    return (queue->size == queue->capacity);
+void insert(Queue *queue){
+    Node *helper, *new = malloc(sizeof(Node));
+    if(new){
+        int newValue = rand() % 999;
+        new->value = newValue;
+        new->next = NULL;
+        if(queue->first == NULL){
+            queue->first = new;
+            queue->first = new;
+        }
+        else{
+            queue->end->next = new;
+            queue->end = new;
+        }
+        queue->size++;
+    }
+    else
+        printf("\nErro no malloc (memória não alocada).\n");
 }
 
-// Fila vazia
-int isEmpty(struct Queue* queue)
-{
-    return (queue->size == 0);
+Node* remove(Queue *queue){
+    Node *remove = NULL;
+
+    if(queue->first){
+        remove = queue->first;
+        queue->first = remove->next;
+        queue->size--;
+    }
+    else
+        printf("A fila encontra-se vazia.\n");
+    return remove;
 }
 
-// Função para adicionar item na fila.
-// Modifica o início e o fim da fila
-void enqueue(struct Queue* queue, int item)
-{
-    if (isFull(queue))
-        return;
-    queue->rear = (queue->rear + 1)
-                  % queue->capacity;
-    queue->array[queue->rear] = item;
-    queue->size = queue->size + 1;
-    printf("%d enqueued to queue\n", item);
+void print(Queue *queue){
+    Node *helper = queue->first;
+    printf("\nInício\n");
+    while(helper){
+        printf("%d ", helper->value);
+        helper = helper->next;
+    }
+    printf("\nFim\n")
 }
 
-// Função para remover um item da fila.
-// Muda o início e o tamanho
-int dequeue(struct Queue* queue)
-{
-    if (isEmpty(queue))
-        return INT_MIN;
-    int item = queue->array[queue->front];
-    queue->front = (queue->front + 1)
-                   % queue->capacity;
-    queue->size = queue->size - 1;
-    return item;
-}
+int main(){
+    Node *toRemove;
+    Queue queue;
+    int operation, value;
 
-// Função para obter o início da fila
-int front(struct Queue* queue)
-{
-    if (isEmpty(queue))
-        return INT_MIN;
-    return queue->array[queue->front];
-}
+    createQueue(&queue);
 
-// Função para obter o fim da fila
-int rear(struct Queue* queue)
-{
-    if (isEmpty(queue))
-        return INT_MIN;
-    return queue->array[queue->rear];
-}
+    do{
+        printf("\n1 - Inserir\n2 - Remover\n3 - Imprimir\n0- Sair\n");
+        scanf("%d", &operation);
 
-// Main
-int main()
-{
-    struct Queue* queue = createQueue(total_capacity);
+        switch(operation){
+        case 1:
+            inserir_na_fila(&queue);
+            break;
+        case 2:
+            toRemove = remove(&queue);
+            if(toRemove){
+                printf("Retirado da fila: %d\n", toRemove->value);
+                free(toRemove);
+            }
+            break;
+        case 3:
+            print(&queue);
+            break;
+        case 0:
+            exit(0);
+        default:
+            if(operation != 0)
+                printf("\nOpcao invaluda!\n");
+        }
 
-    enqueue(queue, 10);
-    enqueue(queue, 20);
-    enqueue(queue, 30);
-    enqueue(queue, 40);
-
-    printf("%d dequeued from queue\n\n",
-           dequeue(queue));
-
-    printf("Front item is %d\n", front(queue));
-    printf("Rear item is %d\n", rear(queue));
+    }while(operation != 0);
 
     return 0;
 }
