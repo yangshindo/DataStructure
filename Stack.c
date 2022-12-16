@@ -1,106 +1,79 @@
-// Stack implementation in C
-
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SIZE 100 //quantidade máxima de itens no stack
+// struct Nó
+typedef struct node {
+  int value;
+  struct node *next;
+} Node;
 
-int count = 0;
+// struct Pilha
+typedef struct {
+  Node *top;
+  int size;
+} Stack;
 
-// Creating a stack
-struct stack {
-  int items[SIZE]; 
-  int top;
-};
-typedef struct stack st;
-
-void createEmptyStack(st *s) {
-  s->top = -1;
-}
-
-// Checa se a pilha está cheia
-int isfull(st *s) {
-  if (s->top == SIZE - 1)
-    return 1;
-  else
-    return 0;
-}
-
-// Checa se a pilha está vazia
-int isempty(st *s) {
-  if (s->top == -1)
-    return 1;
-  else
-    return 0;
-}
-
-// Adiciona elemento no topo da pilha
-void push(st *s) {
-  if (isfull(s)) {
-    printf("A pilha está cheia.");
-  } else {
-    int newItem = rand() % 999;
-    s->top++;
-    s->items[s->top] = newItem;
-    printf("\nItem incluido no topo da pilha: %d \n", newItem);
+void print(Node *node) {
+  if (node) {
+    printf("%d\n", node->value);
+    print(node->next);
   }
-  count++;
-  
 }
 
-// Remove elemento do topo da pilha
-void pop(st *s) {
-  if (isempty(s)) {
-    printf("\nA pilha está vazia \n");
-  } else {
-    printf("\nItem removido do topo= %d", s->items[s->top]);
-    s->top--;
-  }
-  count--;
+// Empilhar
+void stackUp(Stack *s) {
+  Node *node = malloc(sizeof(Node));
+  int newValue = rand() % 999;
+  node->value = newValue;
+  node->next = s->top;
+  s->top = node;
   printf("\n");
+  print(s->top);
 }
 
-// Print elements of stack
-void printStack(st *s) {
-  printf("\nPilha atual: ");
-  for (int i = 0; i < count; i++) {
-    printf("%d ", s->items[i]);
+//  Retorna topo da pilha (NULL caso esteja vazia);
+Node *unstack(Stack *s) {
+  Node *node = NULL;
+  if (s->top) {
+    node = s->top;
+    s->top = node->next;
   }
+  printf("\nLista após desempilhar:\n");
   printf("\n");
+  print(s->top);
+  return node;
 }
 
-// Driver code
 int main() {
-  int ch;
-  st *s = (st *)malloc(sizeof(st));
-  
-  createEmptyStack(s);
+  int operation;
+  Node *node;
+  Stack s;
+  s.size = 0;
+  s.top = NULL;
 
-  int choice;
-
-    while (1)
-    {
-        printf("\nQual operação realizar na pilha?");
-        printf("\n1.Incluir no topo (push) \n2.Remover do topo(pop) \n3.Mostrar a pilha (print) \n0.Sair");
-        printf("\n\nEscolha: ");
-        scanf("%d", &choice);
-
-        switch (choice)
-        {
-        case 1:
-            push(s);
-            break;
-        case 2:
-            pop(s);
-            break;
-        case 3:
-            printStack(s);
-            break;
-        case 0:
-            exit(0);
-
-        default:
-            printf("\nEscolha inválida, favor digitar um valor de 1 à 3; ou 0 para sair.");
-        }
+  while (1) {
+    printf("\n1 - Empilhar\n2 - Desempilhar\n3 - Exibir\n0 - Sair\n");
+    scanf("%d", &operation);
+    switch (operation) {
+    case 1:
+      stackUp(&s);
+      break;
+    case 2:
+      node = unstack(&s);
+      if (node) {
+        printf("\nValor desempilhado: %d\n", node->value);
+      }
+      break;
+    case 3:
+      printf("\n");
+      print(s.top);
+      break;
+    case 0:
+      printf("Encerrado. \n");
+      exit(0);
+    default:
+      printf("Favor escolher uma das opções válidas\n");
+      break;
     }
+  }
 }
