@@ -1,36 +1,43 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct node{
+typedef struct
+{
     int value;
     struct node *next;
-}Node;
+} Node;
 
-typedef struct {
+typedef struct
+{
     Node *first;
-    Node *end;
+    Node *last;
     int size;
-}Queue;
+} Queue;
 
-void createQueue(Queue *queue){
+void createQueue(Queue *queue)
+{
     queue->first = NULL;
-    queue->end = NULL;
+    queue->last = NULL;
     queue->size = 0;
 }
 
-void insert(Queue *queue){
-    Node *helper, *new = malloc(sizeof(Node));
-    if(new){
-        int newValue = rand() % 999;
-        new->value = newValue;
-        new->next = NULL;
-        if(queue->first == NULL){
-            queue->first = new;
-            queue->first = new;
+void insertInQueue(Queue *queue)
+{
+    int newValue = rand() % 999;
+    Node *helper, *newItem = malloc(sizeof(Node));
+    if (newItem)
+    {
+        newItem->value = newValue;
+        newItem->next = NULL;
+        if (queue->first == NULL)
+        {
+            queue->first = newItem;
+            queue->last = newItem;
         }
-        else{
-            queue->end->next = new;
-            queue->end = new;
+        else
+        {
+            queue->last->next = newItem;
+            queue->last = newItem;
         }
         queue->size++;
     }
@@ -38,10 +45,12 @@ void insert(Queue *queue){
         printf("\nErro no malloc (memória não alocada).\n");
 }
 
-Node* remove(Queue *queue){
+Node *removeFromQueue(Queue *queue)
+{
     Node *remove = NULL;
 
-    if(queue->first){
+    if (queue->first)
+    {
         remove = queue->first;
         queue->first = remove->next;
         queue->size--;
@@ -51,49 +60,59 @@ Node* remove(Queue *queue){
     return remove;
 }
 
-void print(Queue *queue){
-    Node *helper = queue->first;
-    printf("\nInício\n");
-    while(helper){
-        printf("%d ", helper->value);
-        helper = helper->next;
+void printQueue(Queue *queue)
+{
+    if (queue->first)
+    {
+        Node *helper = queue->first;
+        printf("\nInício\t");
+        while (helper)
+        {
+            printf("\n%d ", helper->value);
+            helper = helper->next;
+        }
+        printf("\n");
     }
-    printf("\nFim\n")
+    else
+    {
+        printf("\nA fila encontra-se vazia.\n");
+    }
 }
 
-int main(){
+int main()
+{
     Node *toRemove;
     Queue queue;
     int operation, value;
 
     createQueue(&queue);
 
-    do{
+    while (1)
+    {
         printf("\n1 - Inserir\n2 - Remover\n3 - Imprimir\n0- Sair\n");
         scanf("%d", &operation);
 
-        switch(operation){
+        switch (operation)
+        {
         case 1:
-            inserir_na_fila(&queue);
+            insertInQueue(&queue);
             break;
         case 2:
-            toRemove = remove(&queue);
-            if(toRemove){
-                printf("Retirado da fila: %d\n", toRemove->value);
+            toRemove = removeFromQueue(&queue);
+            if (toRemove)
+            {
+                printf("\nRetirado da fila: %d\n", toRemove->value);
                 free(toRemove);
             }
             break;
         case 3:
-            print(&queue);
+            printQueue(&queue);
             break;
         case 0:
             exit(0);
         default:
-            if(operation != 0)
-                printf("\nOpcao invaluda!\n");
+            if (operation != 0)
+                printf("\nFavor selecionar uma opção válida (de 0 à 3)\n");
         }
-
-    }while(operation != 0);
-
-    return 0;
+    }
 }

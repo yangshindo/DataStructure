@@ -1,190 +1,188 @@
-// A complete working C program to demonstrate all insertion methods
-// on Linked List
 #include <stdio.h>
 #include <stdlib.h>
 
-// Criando o nó
-struct Node {
-  int data;
-  struct Node *next;
-};
+typedef struct node
+{
+  int value;
+  struct node *next;
+} Node;
 
-/* Dá uma referencia (pointer to pointer) para o HEAD da lista
-   e um int, insere um novo nó na parte da frente da lista. */
-void push(struct Node **head_ref) {
+typedef struct list
+{
+  Node *beginning, *end;
+  int size;
+} List;
 
-  /* 1. Aloca o nó */
-  struct Node *new_node = (struct Node *)malloc(sizeof(struct Node));
-
-  /* 2. coloca os dados  */
-  int new_data = rand() % 999;
-  new_node->data = new_data;
-
-  /* 3. Define o "próximo" do novo nó como HEAD */
-  new_node->next = (*head_ref);
-
-  /* 4. Move o head pro início do novo nó */
-  (*head_ref) = new_node;
+void createList(List *list)
+{
+  list->beginning = NULL;
+  list->size = 0;
 }
 
-// função requerida para insertAfter
-int getCurrSize(struct Node *node) {
-  int size = 0;
-
-  while (node != NULL) {
-    node = node->next;
-    size++;
+// Inserir no início
+void insertAtTheBeginning(List *list)
+{
+  Node *newNode = malloc(sizeof(Node));
+  int newValue = rand() % 999;
+  if (newNode)
+  {
+    newNode->value = newValue;
+    newNode->next = list->beginning;
+    list->beginning = newNode;
+    list->size++;
   }
-  return size;
+  else
+    printf("\nErro no malloc (memória não alocada).\n");
 }
 
-// Recebe o nó anterior, insere um nó novo após este
-// function to insert after nth node
-void insertAfter(struct Node **head, int n) {
-  int size = getCurrSize(*head);
+// Inserir no fim
+void insertAtTheEnd(List *list)
+{
+  Node *helper, *newNode = malloc(sizeof(Node));
+  int newValue = rand() % 999;
+  if (newNode)
+  {
+    newNode->value = newValue;
+    newNode->next = NULL;
 
-  struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
-  int data = rand() % 999;
-  newNode->data = data;
-  newNode->next = NULL;
-
-  // Can't insert if position to insert is greater than size of Linked List
-  // can insert after negative pos
-  if (n < 0 || n > size)
-    printf("Invalid position to insert\n");
-
-  // inserting first node
-  else if (n == 0) {
-    newNode->next = *head;
-    *head = newNode;
+    // Verifica se é o primeiro elemento
+    if (list->beginning == NULL)
+      list->beginning = newNode;
+    else
+    {
+      helper = list->beginning;
+      while (helper->next)
+        helper = helper->next;
+      helper->next = newNode;
+    }
+    list->size++;
   }
-
-  else {
-    // temp used to traverse the Linked List
-    struct Node *temp = *head;
-
-    // traverse till the nth node
-    while (--n)
-      temp = temp->next;
-
-    // assign newNode's next to nth node's next
-    newNode->next = temp->next;
-    // assign nth node's next to this new node
-    temp->next = newNode;
-    // newNode inserted b/w 3rd and 4th node
-  }
+  else
+    printf("\nErro no malloc (memória não alocada).\n");
 }
 
-/* Recebe uma referência (pointer to pointer) para o HEAD da lista e um int,
-adiciona um novo node ao fim da lista. */
-void append(struct Node **head_ref) {
-  /* 1. Aloca o nó */
-  struct Node *new_node = (struct Node *)malloc(sizeof(struct Node));
-
-  struct Node *last = *head_ref; /* used in step 5*/
-
-  /* 2. coloca os dados  */
-  int new_data = rand() % 999;
-  new_node->data = new_data;
-
-  /* 3. Este novo nó será o último da lista, então transforma o "próximo" em
-   * NULL */
-  new_node->next = NULL;
-
-  /* 4. Se a lista estiver fazia, esse novo nó será HEAD */
-  if (*head_ref == NULL) {
-    *head_ref = new_node;
-    return;
+void insertAfterXValue(List *list, int previousValue)
+{
+  Node *helper, *newNode = malloc(sizeof(Node));
+  int newValue = rand() % 999;
+  if (newNode)
+  {
+    newNode->value = newValue;
+    // é o primeiro?
+    if (list->beginning == NULL)
+    {
+      newNode->next = NULL;
+      list->beginning = newNode;
+    }
+    else
+    {
+      helper = list->beginning;
+      while (helper->value != previousValue && helper->next)
+        helper = helper->next;
+      newNode->next = helper->next;
+      helper->next = newNode;
+    }
+    list->size++;
   }
-
-  /* 5. Caso não esteja vazia, anda-se até o fim da lista */
-  while (last->next != NULL)
-    last = last->next;
-
-  /* 6. Define o "próximo" do ultimo nó como o novo nó criado */
-  last->next = new_node;
-  return;
+  else
+    printf("\nErro no malloc (memória não alocada).\n");
 }
 
-// Printa começando por HEAD
-void printList(struct Node *node) {
-  printf("\n");
-  while (node != NULL) {
-    printf("%d ", node->data);
-    node = node->next;
+// remover um elemento da lista
+void removeItem(List *list, int choosenValue)
+{
+  Node *beginning = list->beginning; // ajustando ponteiro para o início
+  Node *toRemove = NULL;             // ajustando ponteiro para o nó que será removido
+
+  // se o primeiro valor da lista for o valor escolhido pelo usuário, remove
+  // ele.
+  if (beginning != NULL && list->beginning->value == choosenValue)
+  {
+    toRemove = list->beginning;
+    list->beginning = toRemove->next;
+    if (list->beginning == NULL) // caso essa remoção esvazie a lista
+      list->end = NULL;
   }
-  printf("\n");
-}
-
-void deleteN(struct Node **head, int position) {
-  struct Node *temp;
-  struct Node *prev;
-  temp = *head;
-  prev = *head;
-  for (int i = 0; i < position; i++) {
-    if (i == 0 && position == 1) {
-      *head = (*head)->next;
-      free(temp);
-    } else {
-      if (i == position - 1 && temp) {
-        prev->next = temp->next;
-        free(temp);
-      } else {
-        prev = temp;
-
-        // Posição maior que o número de nós na lista
-        if (prev == NULL)
-          break;
-        temp = temp->next;
-      }
+  else
+  {
+    while (beginning != NULL && beginning->next != NULL &&
+           beginning->next->value != choosenValue)
+    {
+      beginning = beginning->next; // anda através da lista procurando o valor
+                                   // escolhido para remover
+    }
+    if (beginning != NULL && beginning->next != NULL)
+    {
+      toRemove = beginning->next;
+      beginning->next = toRemove->next;
+      if (beginning->next == NULL) // caso o elemento removido tenha feito a
+                                   // lista restar apenas 1 elemento
+        list->end =
+            beginning; // o primeiro e o último agora são o mesmo elemento
     }
   }
+  /*Abre espaço de memória após remover o elmento e decrementa o tamanho da
+   * lista*/
+  if (toRemove)
+  {
+    free(toRemove);
+    list->size--;
+  }
 }
 
-// MAIN
-int main() {
-  // Começando com a lista vazia
-  struct Node *head = NULL;
+void printList(List list)
+{
+  Node *node = list.beginning;
+  while (node)
+  {
+    printf("%d ", node->value);
+    node = node->next;
+  }
+  printf("\n\n");
+}
 
-  int choice;
-  int inputValue;
+int main()
+{
+  int operation, userInputValue;
+  List list;
 
-  while (1) {
-    printf("\nQual operação realizar na lista ligada?");
-    printf("\n1.Incluir item no fim da lista) \n2. Incluir item no começo da "
-           "lista \n3. Inserir após um nó existente \n4. Excluir um nó "
-           "existente \n5. Exibir lista \n0.Sair");
-    printf("\n\nEscolha: \n\n");
-    scanf("%d", &choice);
+  createList(&list);
 
-    switch (choice) {
+  while (1)
+  {
+    printf("\n1 - Inserir no início\n2 - Inserir no fim\n3 - Inserir após um "
+           "valor específico\n4- Remover valor da lista\n5 - Imprimir Lista\n0- Sair\n");
+    scanf("%d", &operation);
+
+    switch (operation)
+    {
     case 1:
-      append(&head);
+      insertAtTheBeginning(&list);
       break;
     case 2:
-      push(&head);
+      insertAtTheEnd(&list);
       break;
     case 3:
-      printf("Digite a posição do nó para criar um novo nó após este: \n");
-      scanf("%d", &inputValue);
-      insertAfter(&head, inputValue);
+      printf("\nVocê deseja adicionar um novo elemento após qual valor "
+             "presente na lista?\n");
+      scanf("%d", &userInputValue);
+      insertAfterXValue(&list, userInputValue);
       break;
     case 4:
-      printf("Digite a posição do nó que deve ser excluido: \n");
-      scanf("%d", &inputValue);
-      deleteN(&head, inputValue - 1);
+      printf("\nQual valor você deseja excluir da lista?\n");
+      scanf("%d", &userInputValue);
+      removeItem(&list, userInputValue);
       break;
     case 5:
-      printList(head);
+      printList(list);
       break;
     case 0:
       exit(0);
-
+      break;
     default:
-      printf("\nEscolha inválida, favor digitar um valor de 1 à 3; ou 0 para "
-             "sair.");
+      if (operation != 0)
+        printf("\nFavor selecionar uma opção válida (de 0 à 3)\n");
+      break;
     }
   }
-
-  return 0;
 }
